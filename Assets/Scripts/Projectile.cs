@@ -3,18 +3,24 @@ using System.Collections;
 
 public class Projectile : MonoBehaviour {
 
-    private float travelSpeed = 1.5f;
+    private float travelSpeed = 0.2f;
     private float travelTime = 5f;
 
+    private float fadingProgress = 0f;
+
+    public AudioClip gunSound;
 
 	void Start ()
     {
         StartCoroutine(destroyTime());
+        gameObject.GetComponent<AudioSource>().Play();
     }
 
 	void Update ()
     {
         fromTo();
+        fadingProgress += 0.01f;
+        gameObject.GetComponent<Light>().intensity = floatlerp(0.25f, 0.0f, fadingProgress);
     }
 
     void fromTo()
@@ -37,4 +43,10 @@ public class Projectile : MonoBehaviour {
         yield return new WaitForSeconds(travelTime);
         Destroy(gameObject);
     }
+
+    float floatlerp(float start, float finish, float progress)
+    {
+        return (1 - progress) * start + progress * finish;
+    }
+
 }
