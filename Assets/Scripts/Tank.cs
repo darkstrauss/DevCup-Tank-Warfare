@@ -116,9 +116,7 @@ public abstract class Tank : MonoBehaviour {
 
         Instantiate(bullet, turretBulletSpawn.transform.position, Quaternion.Euler(0, deviation, 0));
 
-        Debug.DrawRay(turretBulletSpawn.transform.position, turretRef.transform.rotation.eulerAngles * 1000, Color.blue, 2.0f, false);
-        Debug.DrawRay(turretBulletSpawn.transform.position, turretRef.transform.rotation.eulerAngles * deviation * Mathf.Infinity, Color.red, 2.0f, false);
-        Debug.DrawLine(turretBulletSpawn.transform.position, to, Color.cyan, Mathf.Infinity);
+        Debug.DrawLine(turretBulletSpawn.transform.position, turretBulletSpawn.transform.forward, Color.red, 2.0f);
     }
 
     protected virtual void Update()
