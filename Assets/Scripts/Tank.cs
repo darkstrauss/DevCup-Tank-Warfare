@@ -17,8 +17,8 @@ public abstract class Tank : MonoBehaviour {
     /// <summary>
     /// Deviation factor for shooting
     /// </summary>
-    private float deviation;
-
+    private float deviation = 0;
+    private bool firing = true;
 
     // Various bools for calculation deviation
     private bool rotatingBody;
@@ -106,19 +106,26 @@ public abstract class Tank : MonoBehaviour {
     /// <param name="to">Target to hit.</param>
     protected virtual void Fire(Vector3 to)
     {
+        if (!firing)
+        {
+            return;
+        }
+        firing = false;
         deviation = Random.Range(-deviation, deviation);
+        StartCoroutine(reload());
 
         Instantiate(bullet, turretBulletSpawn.transform.position, Quaternion.Euler(0, deviation, 0));
 
-        Debug.DrawRay(turretBulletSpawn.transform.position, turretRef.transform.rotation.eulerAngles, Color.blue, 2.0f, false);
-        Debug.DrawRay(turretBulletSpawn.transform.position, turretRef.transform.rotation.eulerAngles * deviation, Color.red, 2.0f, false);
+        Debug.DrawRay(turretBulletSpawn.transform.position, turretRef.transform.rotation.eulerAngles * 1000, Color.blue, 2.0f, false);
+        Debug.DrawRay(turretBulletSpawn.transform.position, turretRef.transform.rotation.eulerAngles * deviation * Mathf.Infinity, Color.red, 2.0f, false);
+        Debug.DrawLine(turretBulletSpawn.transform.position, to, Color.cyan, Mathf.Infinity);
     }
 
     protected virtual void Update()
     {
         if (Input.GetMouseButtonUp(0))
         {
-            Fire(Vector3.zero);
+            Fire(new Vector3(gameObject.transform.position.x, gameObject.transform.position.y, gameObject.transform.position.z + 100));
         }
 
         if (health <= 0)
@@ -148,8 +155,11 @@ public abstract class Tank : MonoBehaviour {
 
     IEnumerator reload()
     {
-
+        reloadingComplete = false;
         yield return new WaitForSeconds(fireRate);
-
+        firing = true;
+        yield return new WaitForSeconds(1f);
+        reloadingComplete = true;
+          
     }
 }
