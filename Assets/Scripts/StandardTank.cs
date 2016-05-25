@@ -8,9 +8,9 @@ public class StandardTank : Tank {
 	
 	}
 
-    protected override void AimAt(Vector3 target)
+    protected override void AimAt(Vector3 lookAtTarget)
     {
-        base.AimAt(target);
+        base.AimAt(lookAtTarget);
     }
 
     protected override void Fire(Vector3 to)
