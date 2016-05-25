@@ -4,9 +4,9 @@ using System.Collections;
 public class Projectile : MonoBehaviour {
 
     //<summary>
-    // float defining  the projectile travel speed, this is not to be changed.
+    // float defining  the projectile travel speed in units per second, this is not to be changed.
     //</summary>
-    private float travelSpeed = 0.2f;
+    private float travelSpeed = 5f;
 
     //<summary>
     // float defining how long the projectile stays active, this is not to be changed.
@@ -17,7 +17,6 @@ public class Projectile : MonoBehaviour {
     // float that when incremented, fades out the light attached to the projectile (used in floatlerp), this is not to be changed.
     //</summary>
     private float fadingProgress = 0f;
-
 
     //<summary>
     // Audioclip that holds the sound to be played when the cannon is fired.
@@ -48,8 +47,7 @@ public class Projectile : MonoBehaviour {
     //</summary>
     void FromTo()
     {
-        Vector3 moving = (transform.forward * Time.deltaTime) * travelSpeed;
-        transform.Translate(moving);
+        transform.Translate(0, 0, travelSpeed * Time.deltaTime);
     }
 
     //<summary>
