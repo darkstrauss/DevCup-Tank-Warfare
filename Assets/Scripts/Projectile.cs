@@ -3,47 +3,84 @@ using System.Collections;
 
 public class Projectile : MonoBehaviour {
 
+    //<summary>
+    // float defining  the projectile travel speed, this is not to be changed.
+    //</summary>
     private float travelSpeed = 0.2f;
+
+    //<summary>
+    // float defining how long the projectile stays active, this is not to be changed.
+    //</summary>
     private float travelTime = 5f;
 
+    //<summary>
+    // float that when incremented, fades out the light attached to the projectile (used in floatlerp), this is not to be changed.
+    //</summary>
     private float fadingProgress = 0f;
 
+
+    //<summary>
+    // Audioclip that holds the sound to be played when the cannon is fired.
+    //</summary>
     public AudioClip gunSound;
 
-	void Start ()
+    //<summary>
+    // When the projectile is first activated it starts the coroutine for the destroy timer. Activates the AudioSource component.
+    //</summary>
+    void Start ()
     {
         StartCoroutine(destroyTime());
         gameObject.GetComponent<AudioSource>().Play();
     }
 
-	void Update ()
+    //<summary>
+    // Calls FromTo, for movement. Incremements fadingProgress, dimming the light using floatlerp.
+    //</summary>
+    void Update ()
     {
-        fromTo();
+        FromTo();
         fadingProgress += 0.01f;
         gameObject.GetComponent<Light>().intensity = floatlerp(0.25f, 0.0f, fadingProgress);
     }
 
-    void fromTo()
+    //<summary>
+    // FromTo moves the projectile using its forward vector taking time.deltatime and speed into acount.
+    //</summary>
+    void FromTo()
     {
-        Vector3 moving = transform.forward * travelSpeed;
+        Vector3 moving = (transform.forward * Time.deltaTime) * travelSpeed;
         transform.Translate(moving);
     }
 
+    //<summary>
+    // Collider event calling damage on the other object if it is tagged as "Tank". If the collided Object is a wall or an obstacle, the projectile is destroyed.
+    //</summary>
     void OnTriggerEnter(Collider other)
     {
         if (other.tag == "Tank")
         {
             //other.GetComponent<Tank>().ReceiveDamage();
             Debug.Log("Need to do Damage");
+            Destroy(gameObject);
+        }
+        else if (other.tag =="Wall" || other.tag == "Obstacle")
+        {
+            Destroy(gameObject);
         }
     }
 
+    //<summary>
+    // IEnumerator that is called when the projectile is activated, if it wont hit anything for some odd reason, it will destroy the projectile after so many seconds defined by travelTime.
+    //</summary>
     IEnumerator destroyTime()
     {
         yield return new WaitForSeconds(travelTime);
         Destroy(gameObject);
     }
 
+    //<summary>
+    // floatlerp lerps a float from start to finish with the use of progress for the use of fading the light component attached to the projectile.
+    //</summary>
     float floatlerp(float start, float finish, float progress)
     {
         return (1 - progress) * start + progress * finish;
