@@ -94,10 +94,48 @@ public abstract class Tank : MonoBehaviour {
     /// <summary>
     /// Points the turret at the target
     /// </summary>
-    /// <param name="target">Target to aim at.</param>
-    protected virtual void AimAt(Vector3 target)
+    /// <param name="lookAtTarget">Target to aim at.</param>
+    protected virtual void AimAt(Vector3 lookAtTarget)
     {
+        Debug.Log(GetRotationDifference(turretRef, lookAtTarget));
 
+        StartCoroutine(RotateTurret(Vector3.forward, GetRotationDifference(turretRef, lookAtTarget), 2));
+    }
+
+    /// <summary>
+    /// Rotates the turret
+    /// </summary>
+    /// <param name="byAngle">Along what axis</param>
+    /// <param name="rotateBy">Degrees of rotation</param>
+    /// <param name="t">Over time</param>
+    /// <returns></returns>
+    private IEnumerator RotateTurret(Vector3 byAngle, float rotateBy, float t)
+    {
+        Quaternion fromAngle = turretRef.transform.rotation;
+        Quaternion toAngle = Quaternion.Euler(turretRef.transform.eulerAngles + new Vector3(0, rotateBy, 0));
+        for (float i = 0; i < 1; i += Time.deltaTime/t)
+        {
+            turretRef.transform.rotation = Quaternion.Lerp(fromAngle, toAngle, i);
+            yield return new WaitForEndOfFrame();
+        }
+    }
+
+    /// <summary>
+    /// Gets the rotational difference between two points
+    /// </summary>
+    /// <param name="from"></param>
+    /// <param name="to"></param>
+    /// <returns>returns a value in degrees</returns>
+    private float GetRotationDifference(GameObject from, Vector3 to)
+    {
+        float oldRotation = from.transform.rotation.eulerAngles.y;
+        from.transform.LookAt(to);
+        float newRotation = from.transform.rotation.eulerAngles.y;
+        from.transform.Rotate(0, -newRotation, 0);
+
+        float rotation = newRotation - oldRotation;
+
+        return rotation;
     }
 
     /// <summary>
@@ -115,8 +153,8 @@ public abstract class Tank : MonoBehaviour {
         StartCoroutine(reload());
 
         Instantiate(bullet, turretBulletSpawn.transform.position, Quaternion.Euler(0, deviation, 0));
-
-        Debug.DrawLine(turretBulletSpawn.transform.position, turretBulletSpawn.transform.forward, Color.red, 2.0f);
+        AimAt(target.transform.position);
+        Debug.DrawRay(turretBulletSpawn.transform.position, turretBulletSpawn.transform.forward * 1000, Color.red, 2.0f, true);
     }
 
     protected virtual void Update()
@@ -135,11 +173,11 @@ public abstract class Tank : MonoBehaviour {
         {
             if (moving || rotatingBody || rotatingTurrert || !reloadingComplete)
             {
-                deviation = Mathf.Lerp(deviation, 5, Time.deltaTime);
+                deviation = Mathf.Lerp(deviation, 5, 2 * Time.deltaTime);
             }
             else
             {
-                deviation = Mathf.Lerp(deviation, 0, Time.deltaTime);
+                deviation = Mathf.Lerp(deviation, 0, 2 * Time.deltaTime);
             }
 
 
