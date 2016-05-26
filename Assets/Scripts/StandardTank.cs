@@ -13,9 +13,9 @@ public class StandardTank : Tank {
         base.AimAt(lookAtTarget);
     }
 
-    protected override void Fire(Vector3 to)
+    protected override void Fire()
     {
-        base.Fire(to);
+        base.Fire();
     }
 
     protected override void Move(Vector3 goal)

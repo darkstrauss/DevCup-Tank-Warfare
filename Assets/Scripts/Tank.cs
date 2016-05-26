@@ -13,21 +13,29 @@ public abstract class Tank : MonoBehaviour {
     [SerializeField]
     private GameObject bullet;
 
-
     /// <summary>
     /// Deviation factor for shooting
     /// </summary>
     private float deviation = 0;
-    private bool firing = true;
+    private float acceptanceDistance = 1.0f;
+    private float turretRotationAngleMax = 60.0f;
+    private float bodyRotationAngleMax = 10.0f;
+    private float movementSpeed = 1;
+    private float backWardsSpeed;
+    private float reloadSpeed = 2.0f;
 
     // Various bools for calculation deviation
     private bool rotatingBody;
     private bool moving;
     private bool rotatingTurret;
     private bool reloadingComplete;
+    private bool firing;
+    private bool aiming;
+    private bool shouldMove;
 
-    public float movementSpeed = 10;
-    public float backWardsSpeed;
+    // Trigger references
+    private TriggerCall bodyTriggerRef;
+    private TriggerCall turretTriggerRef;
 
     /// <summary>
     /// How long it takes to aim the turret
@@ -72,18 +80,31 @@ public abstract class Tank : MonoBehaviour {
     /// <summary>
     /// where is this tank moving?
     /// </summary>
-    public Vector3 goal;
+    public Vector3 goal = Vector3.zero;
 
     /// <summary>
     /// what is this tank going to shoot at?
     /// </summary>
     public GameObject target;
 
-
-
     private void Start()
     {
+        bodyTriggerRef = bodyRef.GetComponent<TriggerCall>();
+        turretTriggerRef = turretRef.GetComponent<TriggerCall>();
         backWardsSpeed = movementSpeed / 2;
+    }
+
+    private void FixedUpdate()
+    {
+        if (aiming)
+        {
+            AimAt(target.transform.position);
+        }
+
+        if (shouldMove)
+        {
+            Move(goal);
+        }
     }
 
     /// <summary>
@@ -92,7 +113,24 @@ public abstract class Tank : MonoBehaviour {
     /// <param name="goal">Goal to move to.</param>
     protected virtual void Move(Vector3 goal)
     {
+        if (Vector3.Distance(transform.position, goal) >= acceptanceDistance)
+        {
+            float rotationSpeed = (2 / Vector3.Distance(transform.position, goal)) * 360f;
 
+            Quaternion lookAtRotation = Quaternion.LookRotation(goal - transform.position);
+            if (Mathf.Abs(Quaternion.Angle(lookAtRotation, transform.rotation)) >= bodyRotationAngleMax)
+            {
+                rotationSpeed *= 2;
+            }
+            transform.rotation = Quaternion.RotateTowards(transform.rotation, lookAtRotation, rotationSpeed * Time.fixedDeltaTime);
+
+            // Moving the tank.
+            transform.Translate(0, 0, movementSpeed * Time.deltaTime);
+        }
+        else
+        {
+            shouldMove = false;
+        }
     }
 
     /// <summary>
@@ -101,54 +139,43 @@ public abstract class Tank : MonoBehaviour {
     /// <param name="lookAtTarget">Target to aim at.</param>
     protected virtual void AimAt(Vector3 lookAtTarget)
     {
-        StartCoroutine(RotateTurret(target.transform.position));
-    }
-
-    /// <summary>
-    /// Rotates the turret
-    /// </summary>
-    /// <param name="rotateBy">Degrees of rotation</param>
-    /// <param name="t">Over time</param>
-    /// <returns></returns>
-    private IEnumerator RotateTurret(Vector3 target)
-    {
-        rotatingTurret = true;
-        Quaternion from = turretRef.transform.rotation;
-        Quaternion lookRotation = Quaternion.LookRotation(turretRef.transform.position - target, Vector3.up);
-        lookRotation.x = 0.0f;
-        lookRotation.z = 0.0f;
-        for (float i = 0; i < 1; i += Time.deltaTime/AIMTIME)
+        if (turretRef.transform.rotation != Quaternion.LookRotation(lookAtTarget - turretRef.transform.position))
         {
-            turretRef.transform.rotation = Quaternion.Lerp(from, lookRotation, i);
-            yield return new WaitForEndOfFrame();
+            aiming = true;
+            float rotationSpeed = (0.5f / Vector3.Distance(turretRef.transform.position, lookAtTarget)) * 360f;
+
+            Quaternion lookAtRotation = Quaternion.LookRotation(lookAtTarget - turretRef.transform.position);
+            if (Mathf.Abs(Quaternion.Angle(lookAtRotation, transform.rotation)) >= turretRotationAngleMax)
+            {
+                rotationSpeed *= 2;
+            }
+            turretRef.transform.rotation = Quaternion.RotateTowards(turretRef.transform.rotation, lookAtRotation, rotationSpeed * Time.fixedDeltaTime);
         }
-        rotatingTurret = false;
+        else
+        {
+            aiming = false;
+        }
     }
 
     /// <summary>
     /// Spawns bullet and fires it at target
     /// </summary>
     /// <param name="to">Target to hit.</param>
-    protected virtual void Fire(Vector3 to)
+    protected virtual void Fire()
     {
-        if (!firing)
-        {
-            return;
-        }
-        firing = false;
         deviation = Random.Range(-deviation, deviation);
         StartCoroutine(reload());
-
+        
         Quaternion rotation = new Quaternion(0, turretBulletSpawn.transform.rotation.y + deviation, 0, turretBulletSpawn.transform.rotation.w);
         Instantiate(bullet, turretBulletSpawn.transform.position, rotation);
-        AimAt(target.transform.position);
     }
 
     protected virtual void Update()
     {
         if (Input.GetMouseButtonUp(0))
         {
-            Fire(new Vector3(gameObject.transform.position.x, gameObject.transform.position.y, gameObject.transform.position.z + 100));
+            aiming = true;
+            shouldMove = true;
         }
 
         if (health <= 0)
@@ -158,17 +185,17 @@ public abstract class Tank : MonoBehaviour {
         }
         else
         {
-            if (moving || rotatingBody || rotatingTurret || !reloadingComplete)
+            if (moving || rotatingBody || rotatingTurret || !reloadingComplete || aiming)
             {
-                deviation = Mathf.Lerp(deviation, 0.3f, 2 * Time.deltaTime);
+                deviation = Mathf.Lerp(deviation, 0.2f, 2 * Time.deltaTime);
             }
             else
             {
                 deviation = Mathf.Lerp(deviation, 0, 2 * Time.deltaTime);
             }
-
-
         }
+
+        //need to get the enemies from the triggers in the body and turret. Use the getter function in the tirggercall
     }
 
     public virtual void RecieveDamage()
@@ -179,10 +206,7 @@ public abstract class Tank : MonoBehaviour {
     IEnumerator reload()
     {
         reloadingComplete = false;
-        yield return new WaitForSeconds(fireRate);
-        firing = true;
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(reloadSpeed);
         reloadingComplete = true;
-          
     }
 }
