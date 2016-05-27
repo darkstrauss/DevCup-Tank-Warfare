@@ -5,7 +5,7 @@ using System.Collections.Generic;
 public class TriggerCall : MonoBehaviour {
 
     public bool triggered = false;
-    private List<GameObject> enemies;
+    public List<GameObject> enemies;
 
     public List<GameObject> Get()
     {
@@ -14,6 +14,7 @@ public class TriggerCall : MonoBehaviour {
 
     private void OnTriggerStay(Collider other)
     {
+        Debug.Log("something is staying in trigger area of: " + transform.parent.name);
         if (other.tag == "Tank")
         {
             triggered = true;
