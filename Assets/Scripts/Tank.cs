@@ -98,7 +98,7 @@ public abstract class Tank : MonoBehaviour {
     {
         if (aiming)
         {
-            AimAt(target.transform.position);
+            Aim(target.transform.position);
         }
 
         if (shouldMove)
@@ -108,10 +108,30 @@ public abstract class Tank : MonoBehaviour {
     }
 
     /// <summary>
+    /// Use this function to move to a vector 3 coordinate
+    /// </summary>
+    /// <param name="destination">Where you want the tank to move to</param>
+    protected virtual void MoveTo(Vector3 destination)
+    {
+        goal = destination;
+        shouldMove = true;
+    }
+
+    /// <summary>
+    /// Use this to rotate the tank's turret at a certain target
+    /// </summary>
+    /// <param name="targetLocation">Where the barrel should point</param>
+    protected virtual void AimAt(GameObject targetLocation)
+    {
+        target = targetLocation;
+        aiming = true;
+    }
+
+    /// <summary>
     /// Moves the tank from its current position to the goal given.
     /// </summary>
     /// <param name="goal">Goal to move to.</param>
-    protected virtual void Move(Vector3 goal)
+    private void Move(Vector3 goal)
     {
         if (Vector3.Distance(transform.position, goal) >= acceptanceDistance)
         {
@@ -137,7 +157,7 @@ public abstract class Tank : MonoBehaviour {
     /// Points the turret at the target
     /// </summary>
     /// <param name="lookAtTarget">Target to aim at.</param>
-    protected virtual void AimAt(Vector3 lookAtTarget)
+    private void Aim(Vector3 lookAtTarget)
     {
         if (turretRef.transform.rotation != Quaternion.LookRotation(lookAtTarget - turretRef.transform.position))
         {
@@ -174,8 +194,8 @@ public abstract class Tank : MonoBehaviour {
     {
         if (Input.GetMouseButtonUp(0))
         {
-            aiming = true;
-            shouldMove = true;
+            AimAt(target);
+            //MoveTo(goal);
         }
 
         if (health <= 0)
@@ -196,6 +216,37 @@ public abstract class Tank : MonoBehaviour {
         }
 
         //need to get the enemies from the triggers in the body and turret. Use the getter function in the tirggercall
+        for (int i = 0; i < bodyTriggerRef.GetEnemies().Count; i++)
+        {
+            if (!enemies.Contains(bodyTriggerRef.GetEnemies()[i]))
+            {
+                enemies.Add(bodyTriggerRef.GetEnemies()[i]);
+            }
+        }
+
+        for (int i = 0; i < turretTriggerRef.GetEnemies().Count; i++)
+        {
+            if (!enemies.Contains(turretTriggerRef.GetEnemies()[i]))
+            {
+                enemies.Add(turretTriggerRef.GetEnemies()[i]);
+            }
+        }
+
+        for (int i = 0; i < bodyTriggerRef.GetWorldProps().Count; i++)
+        {
+            if (!obstacles.Contains(bodyTriggerRef.GetWorldProps()[i]))
+            {
+                obstacles.Add(bodyTriggerRef.GetWorldProps()[i]);
+            }
+        }
+
+        for (int i = 0; i < turretTriggerRef.GetWorldProps().Count; i++)
+        {
+            if (!obstacles.Contains(turretTriggerRef.GetWorldProps()[i]))
+            {
+                obstacles.Add(turretTriggerRef.GetWorldProps()[i]);
+            }
+        }
     }
 
     public virtual void RecieveDamage()

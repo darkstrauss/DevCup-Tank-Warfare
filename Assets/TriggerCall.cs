@@ -2,27 +2,50 @@
 using System.Collections;
 using System.Collections.Generic;
 
+/// <summary>
+/// DO NOT EDIT THIS CLASS!
+/// </summary>
 public class TriggerCall : MonoBehaviour {
 
     public bool triggered = false;
-    public List<GameObject> enemies;
+    private List<GameObject> enemies = new List<GameObject>();
+    private List<GameObject> worldProps = new List<GameObject>();
 
-    public List<GameObject> Get()
+    public List<GameObject> GetEnemies()
     {
         return enemies;
     }
 
-    private void OnTriggerStay(Collider other)
+    public List<GameObject> GetWorldProps()
     {
-        Debug.Log("something is staying in trigger area of: " + transform.parent.name);
+        return worldProps;
+    }
+
+    private void FixedUpdate()
+    {
+        if (worldProps.Count <= 0 && enemies.Count <= 0)
+        {
+            triggered = false;
+        }
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
         if (other.tag == "Tank")
         {
             triggered = true;
-            enemies.Add(other.gameObject);
+            if (!enemies.Contains(other.gameObject))
+            {
+                enemies.Add(other.gameObject);
+            }
         }
-        else
+        else if (other.tag == "Prop")
         {
-            triggered = false;
+            triggered = true;
+            if (!worldProps.Contains(other.gameObject))
+            {
+                worldProps.Add(other.gameObject);
+            }
         }
     }
 
@@ -31,6 +54,10 @@ public class TriggerCall : MonoBehaviour {
         if (enemies.Contains(other.gameObject))
         {
             enemies.Remove(other.gameObject);
+        }
+        else if (worldProps.Contains(other.gameObject))
+        {
+            worldProps.Remove(other.gameObject);
         }
     }
 }
