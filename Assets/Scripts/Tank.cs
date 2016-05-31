@@ -87,7 +87,7 @@ public abstract class Tank : MonoBehaviour {
     /// </summary>
     public GameObject target;
 
-    private void Start()
+    protected virtual void Start()
     {
         bodyTriggerRef = bodyRef.GetComponent<TriggerCall>();
         turretTriggerRef = turretRef.GetComponent<TriggerCall>();
@@ -223,7 +223,6 @@ public abstract class Tank : MonoBehaviour {
                 enemies.Add(bodyTriggerRef.GetEnemies()[i]);
             }
         }
-
         for (int i = 0; i < turretTriggerRef.GetEnemies().Count; i++)
         {
             if (!enemies.Contains(turretTriggerRef.GetEnemies()[i]))
