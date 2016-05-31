@@ -25,13 +25,13 @@ public abstract class Tank : MonoBehaviour {
     private float reloadSpeed = 2.0f;
 
     // Various bools for calculation deviation
-    private bool rotatingBody;
-    private bool moving;
+    private bool rotatingBody = false;
+    private bool moving = false;
     private bool rotatingTurret;
-    private bool reloadingComplete;
-    private bool firing;
-    private bool aiming;
-    private bool shouldMove;
+    private bool reloadingComplete = true;
+    private bool firing = false;
+    private bool aiming = false;
+    private bool shouldMove = false;
 
     // Trigger references
     private TriggerCall bodyTriggerRef;
