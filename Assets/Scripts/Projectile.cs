@@ -59,7 +59,7 @@ public class Projectile : MonoBehaviour {
     {
         if (other.tag == "Tank")
         {
-            //other.GetComponent<Tank>().ReceiveDamage();
+            other.GetComponent<Tank>().RecieveDamage();
             Debug.Log("Need to do Damage");
             Destroy(gameObject);
         }
