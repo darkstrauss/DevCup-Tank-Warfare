@@ -34,7 +34,6 @@ public class TriggerCall : MonoBehaviour {
 
     private void OnTriggerEnter(Collider other)
     {
-        Debug.Log(other.name);
         if (other.tag == "Tank")
         {
             triggered = true;

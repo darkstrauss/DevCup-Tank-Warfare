@@ -63,7 +63,7 @@ public class Projectile : MonoBehaviour {
             Debug.Log("Need to do Damage");
             Destroy(gameObject);
         }
-        else if (other.tag =="Wall" || other.tag == "Obstacle")
+        else if (other.tag =="Wall" || other.tag == "Prop")
         {
             Destroy(gameObject);
         }
