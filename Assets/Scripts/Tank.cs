@@ -25,13 +25,13 @@ public abstract class Tank : MonoBehaviour {
     private float reloadSpeed = 2.0f;
 
     // Various bools for calculation deviation
-    private bool rotatingBody = false;
-    private bool moving = false;
-    private bool rotatingTurret;
-    private bool reloadingComplete = true;
-    private bool firing = false;
-    private bool aiming = false;
-    private bool shouldMove = false;
+    protected bool rotatingBody = false;
+    protected bool moving = false;
+    protected bool rotatingTurret;
+    protected bool reloadingComplete = true;
+    protected bool firing = false;
+    protected bool aiming = false;
+    protected bool shouldMove = false;
 
     // Trigger references
     private TriggerCall bodyTriggerRef;
@@ -85,7 +85,7 @@ public abstract class Tank : MonoBehaviour {
     /// <summary>
     /// what is this tank going to shoot at?
     /// </summary>
-    public GameObject target;
+    protected GameObject target;
 
     protected virtual void Start()
     {
@@ -157,7 +157,7 @@ public abstract class Tank : MonoBehaviour {
     /// Points the turret at the target
     /// </summary>
     /// <param name="lookAtTarget">Target to aim at.</param>
-    private void Aim(Vector3 lookAtTarget)
+    protected virtual void Aim(Vector3 lookAtTarget)
     {
         if (turretRef.transform.rotation != Quaternion.LookRotation(lookAtTarget - turretRef.transform.position))
         {
@@ -178,9 +178,8 @@ public abstract class Tank : MonoBehaviour {
     }
 
     /// <summary>
-    /// Spawns bullet and fires it at target
+    /// Spawns bullet and fires it
     /// </summary>
-    /// <param name="to">Target to hit.</param>
     protected virtual void Fire()
     {
         if (reloadingComplete)
