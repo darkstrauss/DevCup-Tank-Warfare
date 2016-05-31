@@ -82,6 +82,7 @@ public abstract class Tank : MonoBehaviour {
     /// </summary>
     public Vector3 goal = Vector3.zero;
 
+    [SerializeField]
     /// <summary>
     /// what is this tank going to shoot at?
     /// </summary>
@@ -162,7 +163,7 @@ public abstract class Tank : MonoBehaviour {
         if (turretRef.transform.rotation != Quaternion.LookRotation(lookAtTarget - turretRef.transform.position))
         {
             aiming = true;
-            float rotationSpeed = (0.5f / Vector3.Distance(turretRef.transform.position, lookAtTarget)) * 360f;
+            float rotationSpeed = 30;
 
             Quaternion lookAtRotation = Quaternion.LookRotation(lookAtTarget - turretRef.transform.position);
             if (Mathf.Abs(Quaternion.Angle(lookAtRotation, transform.rotation)) >= turretRotationAngleMax)

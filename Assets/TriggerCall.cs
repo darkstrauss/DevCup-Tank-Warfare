@@ -8,7 +8,10 @@ using System.Collections.Generic;
 public class TriggerCall : MonoBehaviour {
 
     public bool triggered = false;
+
+    [SerializeField]
     private List<GameObject> enemies = new List<GameObject>();
+    [SerializeField]
     private List<GameObject> worldProps = new List<GameObject>();
 
     public List<GameObject> GetEnemies()
@@ -31,6 +34,7 @@ public class TriggerCall : MonoBehaviour {
 
     private void OnTriggerEnter(Collider other)
     {
+        Debug.Log(other.name);
         if (other.tag == "Tank")
         {
             triggered = true;
