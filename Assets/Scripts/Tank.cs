@@ -135,7 +135,7 @@ public abstract class Tank : MonoBehaviour {
     {
         if (Vector3.Distance(transform.position, goal) >= acceptanceDistance)
         {
-            float rotationSpeed = (2 / Vector3.Distance(transform.position, goal)) * 360f;
+            float rotationSpeed = (1 / Vector3.Distance(transform.position, goal)) * 360f;
 
             Quaternion lookAtRotation = Quaternion.LookRotation(goal - transform.position);
             if (Mathf.Abs(Quaternion.Angle(lookAtRotation, transform.rotation)) >= bodyRotationAngleMax)
@@ -183,20 +183,18 @@ public abstract class Tank : MonoBehaviour {
     /// <param name="to">Target to hit.</param>
     protected virtual void Fire()
     {
-        deviation = Random.Range(-deviation, deviation);
-        StartCoroutine(reload());
-        
-        Quaternion rotation = new Quaternion(0, turretBulletSpawn.transform.rotation.y + deviation, 0, turretBulletSpawn.transform.rotation.w);
-        Instantiate(bullet, turretBulletSpawn.transform.position, rotation);
+        if (reloadingComplete)
+        {
+            deviation = Random.Range(-deviation, deviation);
+            StartCoroutine(reload());
+
+            Quaternion rotation = new Quaternion(0, turretBulletSpawn.transform.rotation.y + deviation, 0, turretBulletSpawn.transform.rotation.w);
+            Instantiate(bullet, turretBulletSpawn.transform.position, rotation);
+        }
     }
 
     protected virtual void Update()
     {
-        if (Input.GetMouseButtonUp(0))
-        {
-            AimAt(target);
-            //MoveTo(goal);
-        }
 
         if (health <= 0)
         {
