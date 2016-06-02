@@ -57,7 +57,7 @@ public class Projectile : MonoBehaviour {
     ///</summary>
     void OnTriggerEnter(Collider other)
     {
-        if (other.tag == "Tank")
+        if (other.tag == "Tank" && !other.gameObject.Equals(gameObject))
         {
             other.GetComponent<Tank>().RecieveDamage();
             Debug.Log("Need to do Damage");

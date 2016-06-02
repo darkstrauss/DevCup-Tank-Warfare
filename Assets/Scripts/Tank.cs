@@ -136,13 +136,12 @@ public abstract class Tank : MonoBehaviour {
     {
         if (Vector3.Distance(transform.position, goal) >= acceptanceDistance)
         {
-            float rotationSpeed = (1 / Vector3.Distance(transform.position, goal)) * 360f;
+            float rotationSpeed = 45;
 
             Quaternion lookAtRotation = Quaternion.LookRotation(goal - transform.position);
-            if (Mathf.Abs(Quaternion.Angle(lookAtRotation, transform.rotation)) >= bodyRotationAngleMax)
-            {
-                rotationSpeed *= 2;
-            }
+            lookAtRotation.x = 0;
+            lookAtRotation.z = 0;
+
             transform.rotation = Quaternion.RotateTowards(transform.rotation, lookAtRotation, rotationSpeed * Time.fixedDeltaTime);
 
             // Moving the tank.
@@ -166,10 +165,7 @@ public abstract class Tank : MonoBehaviour {
             float rotationSpeed = 30;
 
             Quaternion lookAtRotation = Quaternion.LookRotation(lookAtTarget - turretRef.transform.position);
-            if (Mathf.Abs(Quaternion.Angle(lookAtRotation, transform.rotation)) >= turretRotationAngleMax)
-            {
-                rotationSpeed *= 2;
-            }
+
             turretRef.transform.rotation = Quaternion.RotateTowards(turretRef.transform.rotation, lookAtRotation, rotationSpeed * Time.fixedDeltaTime);
         }
         else
@@ -221,6 +217,16 @@ public abstract class Tank : MonoBehaviour {
                 enemies.Add(bodyTriggerRef.GetEnemies()[i]);
             }
         }
+        for (int i = 0; i < enemies.Count; i++)
+        {
+            if (!bodyTriggerRef.GetEnemies().Contains(enemies[i]))
+            {
+                enemies.Remove(enemies[i]);
+                enemies.TrimExcess();
+            }
+        }
+
+
         for (int i = 0; i < turretTriggerRef.GetEnemies().Count; i++)
         {
             if (!enemies.Contains(turretTriggerRef.GetEnemies()[i]))
@@ -228,6 +234,15 @@ public abstract class Tank : MonoBehaviour {
                 enemies.Add(turretTriggerRef.GetEnemies()[i]);
             }
         }
+        for (int i = 0; i < enemies.Count; i++)
+        {
+            if (!turretTriggerRef.GetEnemies().Contains(enemies[i]))
+            {
+                enemies.Remove(enemies[i]);
+                enemies.TrimExcess();
+            }
+        }
+
 
         for (int i = 0; i < bodyTriggerRef.GetWorldProps().Count; i++)
         {
@@ -236,6 +251,7 @@ public abstract class Tank : MonoBehaviour {
                 obstacles.Add(bodyTriggerRef.GetWorldProps()[i]);
             }
         }
+
 
         for (int i = 0; i < turretTriggerRef.GetWorldProps().Count; i++)
         {
