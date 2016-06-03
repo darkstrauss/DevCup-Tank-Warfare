@@ -99,7 +99,10 @@ public abstract class Tank : MonoBehaviour {
     {
         if (aiming)
         {
-            Aim(target.transform.position);
+            if (target != null)
+            {
+                Aim(target.transform.position);
+            }
         }
 
         if (shouldMove)
@@ -217,16 +220,7 @@ public abstract class Tank : MonoBehaviour {
                 enemies.Add(bodyTriggerRef.GetEnemies()[i]);
             }
         }
-        for (int i = 0; i < enemies.Count; i++)
-        {
-            if (!bodyTriggerRef.GetEnemies().Contains(enemies[i]))
-            {
-                enemies.Remove(enemies[i]);
-                enemies.TrimExcess();
-            }
-        }
-
-
+        
         for (int i = 0; i < turretTriggerRef.GetEnemies().Count; i++)
         {
             if (!enemies.Contains(turretTriggerRef.GetEnemies()[i]))
@@ -234,14 +228,21 @@ public abstract class Tank : MonoBehaviour {
                 enemies.Add(turretTriggerRef.GetEnemies()[i]);
             }
         }
-        for (int i = 0; i < enemies.Count; i++)
+        if (enemies.Count > 0)
         {
-            if (!turretTriggerRef.GetEnemies().Contains(enemies[i]))
+            for (int i = 0; i < enemies.Count; i++)
             {
-                enemies.Remove(enemies[i]);
-                enemies.TrimExcess();
+                List<GameObject> turretEnemyList = turretTriggerRef.GetEnemies();
+                List<GameObject> bodyEnemyList = bodyTriggerRef.GetEnemies();
+                if (!turretEnemyList.Contains(enemies[i]) && !bodyEnemyList.Contains(enemies[i]))
+                {
+                    Debug.Log("enemy no longer in vision distance");
+                    enemies.Remove(enemies[i]);
+                    enemies.TrimExcess();
+                }
             }
         }
+
 
 
         for (int i = 0; i < bodyTriggerRef.GetWorldProps().Count; i++)
